@@ -40,4 +40,4 @@ const userSchema = new mongoose.Schema(
 userSchema.index({ email: 1 });
 userSchema.index({ username: 1 });
 
-export const userModel = mongoose.model("users", userSchema);
+export const users = mongoose.model("users", userSchema);
