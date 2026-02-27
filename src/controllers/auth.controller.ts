@@ -1,7 +1,17 @@
-import { Request, Response } from "express";
-import { users } from "../models/user.model";
-import jwt, { JwtPayload } from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import { CookieOptions, Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import { users } from "../models/user.model";
+
+const isProd = process.env.NODE_ENV === "production";
+
+export const cookieOptions: CookieOptions = {
+  httpOnly: true,
+  secure: isProd,
+  sameSite: isProd ? "none" : "lax",
+  path: "/",
+  maxAge: 24 * 60 * 60 * 1000,
+};
 
 // REGISTRATION
 export const registerController = async (req: Request, res: Response) => {
@@ -43,12 +53,7 @@ export const registerController = async (req: Request, res: Response) => {
       { expiresIn: "1d" },
     );
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 24 * 60 * 60 * 1000,
-    });
+    res.cookie("token", token, cookieOptions);
 
     return res.status(201).json({
       message: "User Registered successfully",
@@ -105,12 +110,7 @@ export const loginController = async (req: Request, res: Response) => {
       },
     );
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000,
-    });
+    res.cookie("token", token, cookieOptions);
 
     return res.status(200).json({
       message: "User logged in successfully",
@@ -131,8 +131,16 @@ export const loginController = async (req: Request, res: Response) => {
 };
 
 // LOGOUT
-
-export const logoutController = async () => {
+export const logoutController = async (req: Request, res: Response) => {
   try {
-  } catch (error) {}
+    res.clearCookie("token", cookieOptions);
+
+    return res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
+  }
 };
