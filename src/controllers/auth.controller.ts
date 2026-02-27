@@ -3,9 +3,20 @@ import { CookieOptions, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { users } from "../models/user.model";
 
+// CONFIG
+const TOKEN_NAME = "token";
+
 const isProd = process.env.NODE_ENV === "production";
 
-export const cookieOptions: CookieOptions = {
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET is missing");
+}
+
+const SALT_ROUNDS: number = Number(process.env.BCRYPT_ROUNDS) || 10;
+
+const cookieOptions: CookieOptions = {
   httpOnly: true,
   secure: isProd,
   sameSite: isProd ? "none" : "lax",
@@ -13,30 +24,35 @@ export const cookieOptions: CookieOptions = {
   maxAge: 24 * 60 * 60 * 1000,
 };
 
-// REGISTRATION
+//  REGISTER
+
 export const registerController = async (req: Request, res: Response) => {
   try {
     const { email, password, username } = req.body;
 
     if (!username || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    const existingEmail = await users.findOne({
-      $or: [{ email }, { username }],
-    });
-
-    if (existingEmail) {
-      return res.status(409).json({
-        message:
-          "User already exists " +
-          (existingEmail.email == email
-            ? "Email already exists"
-            : "Username already exists"),
+      return res.status(400).json({
+        message: "All fields are required",
       });
     }
 
-    const hash = await bcrypt.hash(password, 10);
+    const existingUser = await users.findOne({
+      $or: [{ email }, { username }],
+    });
+
+    if (existingUser) {
+      if (existingUser.email === email) {
+        return res.status(409).json({
+          message: "Email already exists",
+        });
+      }
+
+      return res.status(409).json({
+        message: "Username already exists",
+      });
+    }
+
+    const hash = await bcrypt.hash(password, SALT_ROUNDS);
 
     const user = await users.create({
       username,
@@ -49,11 +65,13 @@ export const registerController = async (req: Request, res: Response) => {
         id: user._id,
         username: user.username,
       },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1d" },
+      JWT_SECRET,
+      {
+        expiresIn: "1d",
+      },
     );
 
-    res.cookie("token", token, cookieOptions);
+    res.cookie(TOKEN_NAME, token, cookieOptions);
 
     return res.status(201).json({
       message: "User Registered successfully",
@@ -63,62 +81,67 @@ export const registerController = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Server error" });
+    console.error("Register Error:", error);
+
+    return res.status(500).json({
+      message: "Server error",
+    });
   }
 };
 
 // LOGIN
+
 export const loginController = async (req: Request, res: Response) => {
   try {
-    const { email, password, username } = req.body;
+    const { email, username, password } = req.body;
 
-    if (!username || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+    if ((!email && !username) || !password) {
+      return res.status(400).json({
+        message: "Email or Username and password required",
+      });
     }
-    const existingUser = await users
+
+    const user = await users
       .findOne({
         $or: [{ email }, { username }],
       })
       .select("+password");
 
-    if (!existingUser) {
-      return res.status(404).json({
-        message: "User not found",
+    if (!user) {
+      return res.status(401).json({
+        message: "Invalid credentials",
       });
     }
 
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      existingUser.password,
-    );
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
       return res.status(401).json({
-        message: "password invalid",
+        message: "Invalid credentials",
       });
     }
 
     const token = jwt.sign(
       {
-        id: existingUser._id,
-        username: existingUser.username,
+        id: user._id,
+        username: user.username,
       },
-      process.env.JWT_SECRET!,
+      JWT_SECRET,
       {
         expiresIn: "1d",
       },
     );
 
-    res.cookie("token", token, cookieOptions);
+    res.cookie(TOKEN_NAME, token, cookieOptions);
 
     return res.status(200).json({
       message: "User logged in successfully",
+
       user: {
-        username: existingUser.username,
-        email: existingUser.email,
-        bio: existingUser.bio || "",
-        profileImage: existingUser.profileImage || "",
+        username: user.username,
+        email: user.email,
+        bio: user.bio || "",
+        profileImage: user.profileImage || "",
       },
     });
   } catch (error) {
@@ -130,17 +153,27 @@ export const loginController = async (req: Request, res: Response) => {
   }
 };
 
-// LOGOUT
+//  LOGOUT
+
 export const logoutController = async (req: Request, res: Response) => {
   try {
-    res.clearCookie("token", cookieOptions);
+    res.clearCookie(TOKEN_NAME, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
+      path: "/",
+    });
 
     return res.status(200).json({
       success: true,
+
       message: "Logged out successfully",
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Server error" });
+    console.error("Logout Error:", error);
+
+    return res.status(500).json({
+      message: "Server error",
+    });
   }
 };
