@@ -8,6 +8,7 @@ import helmet from "helmet";
 import { authRouter } from "./routes/authRoutes";
 
 dotenv.config();
+
 db();
 app.set("trust proxy", true);
 app.use(

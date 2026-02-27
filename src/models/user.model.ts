@@ -11,13 +11,13 @@ const userSchema = new mongoose.Schema(
       type: String,
       unique: [true, "email already exists"],
       required: [true, "email is required"],
+      match: [/^\S+@\S+\.\S+$/, "Invalid email"],
       lowercase: true,
     },
     password: {
       type: String,
       required: [true, "Password is required"],
       select: false,
-      match: [/^\S+@\S+\.\S+$/, "Invalid email"],
     },
 
     bio: {
@@ -36,8 +36,5 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
-
-userSchema.index({ email: 1 });
-userSchema.index({ username: 1 });
 
 export const users = mongoose.model("users", userSchema);

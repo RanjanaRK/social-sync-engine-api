@@ -8,11 +8,7 @@ const TOKEN_NAME = "token";
 
 const isProd = process.env.NODE_ENV === "production";
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET is missing");
-}
+const JWT_SECRET = process.env.JWT_SECRET!;
 
 const SALT_ROUNDS: number = Number(process.env.BCRYPT_ROUNDS) || 10;
 
