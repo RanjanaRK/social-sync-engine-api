@@ -7,6 +7,12 @@ const imagekit = new ImageKit({
 });
 
 export const createPostController = async (req: Request, res: Response) => {
+  const user = req.user;
+
+  if (!user) {
+    return res.status(401).json({ message: "invalid user" });
+  }
+
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -15,16 +21,17 @@ export const createPostController = async (req: Request, res: Response) => {
     }
 
     const uploaded = await imagekit.files.upload({
-      file: req.file.buffer,
-
-      fileName: Date.now() + "-" + req.file.originalname,
+      file: req.file.buffer.toString("base64"),
+      fileName: `${Date.now()}-${req.file.originalname}`,
+      folder: "/posts",
     });
+
     const post = await posts.create({
       caption: req.body.caption || "",
 
-      imgUrl: uploaded.url,
+      postImage: uploaded.url,
 
-      user: req.user.id,
+      user: user,
     });
 
     return res.status(201).json({

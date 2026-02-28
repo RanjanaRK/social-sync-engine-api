@@ -21,7 +21,7 @@ export const identifyUser = async (
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
 
     req.user = decoded;
 

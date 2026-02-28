@@ -5,7 +5,8 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import express from "express";
 import helmet from "helmet";
-import { authRouter } from "./routes/authRoutes";
+import { authRouter } from "./routes/auth.routes";
+import { postRouter } from "./routes/post.routes";
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use(cookieParser());
 app.use(helmet());
 
 app.use("/api/auth", authRouter);
+app.use("/api/post", postRouter);
 
 app.listen(5000, () => {
   console.log("server is running okay");
