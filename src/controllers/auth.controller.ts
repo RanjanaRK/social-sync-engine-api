@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { CookieOptions, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { users } from "../models/user.model";
+import { users } from "../models/user.model.js";
 
 // CONFIG
 const TOKEN_NAME = "token";

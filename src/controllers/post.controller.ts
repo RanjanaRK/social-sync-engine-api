@@ -1,9 +1,9 @@
 import ImageKit, { toFile } from "@imagekit/nodejs";
 import { Request, Response } from "express";
-import { posts } from "../models/post.model";
+import { posts } from "../models/post.model.js";
 
 const imagekit = new ImageKit({
-  privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY!,
 });
 
 export const createPostController = async (req: Request, res: Response) => {
@@ -28,10 +28,8 @@ export const createPostController = async (req: Request, res: Response) => {
 
     const post = await posts.create({
       caption: req.body.caption || "",
-
-      postImage: uploaded.url,
-
-      user: user,
+      postImage: uploaded.url!,
+      user: user.id,
     });
 
     return res.status(201).json({

@@ -3,7 +3,7 @@ import {
   loginController,
   logoutController,
   registerController,
-} from "../controllers/auth.controller";
+} from "../controllers/auth.controller.js";
 
 export const authRouter = Router();
 

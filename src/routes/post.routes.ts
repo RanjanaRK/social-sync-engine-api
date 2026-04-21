@@ -1,7 +1,7 @@
 import { Router } from "express";
 import multer, { memoryStorage } from "multer";
-import { identifyUser } from "../middlewares/auth.middleware";
-import { createPostController } from "../controllers/post.controller";
+import { identifyUser } from "../middlewares/auth.middleware.js";
+import { createPostController } from "../controllers/post.controller.js";
 
 export const postRouter = Router();
 

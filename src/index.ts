@@ -1,14 +1,14 @@
-import dotenv from "dotenv";
-import app from "./server";
-import { db } from "./config/db";
+import "dotenv/config";
+
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import express from "express";
 import helmet from "helmet";
-import { authRouter } from "./routes/auth.routes";
-import { postRouter } from "./routes/post.routes";
 
-dotenv.config();
+import { authRouter } from "./routes/auth.routes.js";
+import { postRouter } from "./routes/post.routes.js";
+import { db } from "./config/db.js";
+import app from "./server.js";
 
 db();
 app.set("trust proxy", true);
