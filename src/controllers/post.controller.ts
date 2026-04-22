@@ -55,3 +55,28 @@ export const getPostsController = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const deletePostController = async (req: Request, res: Response) => {
+  const { postId } = req.params;
+
+  try {
+    const userPost = await posts.findById(postId).populate("user");
+    if (!userPost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    const post = await posts.findByIdAndDelete(postId);
+
+    return res.status(200).json({
+      message: "Post deleted",
+
+      post,
+    });
+  } catch (error) {
+    console.error("Post Error:", error);
+
+    return res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
