@@ -4,9 +4,10 @@ import cookieParser from "cookie-parser";
 import express from "express";
 import helmet from "helmet";
 import { authRouter } from "./routes/auth.routes.js";
-import { postRouter } from "./routes/post.routes.js";
+
 import { db } from "./config/db.js";
 import app from "./server.js";
+import postRouter from "./routes/post.routes.js";
 
 db();
 app.set("trust proxy", true);
