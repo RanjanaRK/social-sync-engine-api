@@ -1,10 +1,7 @@
 import ImageKit, { toFile } from "@imagekit/nodejs";
 import { Request, Response } from "express";
 import { posts } from "../models/post.model.js";
-
-const imagekit = new ImageKit({
-  privateKey: process.env.IMAGEKIT_PRIVATE_KEY!,
-});
+import { uploadImage } from "../utils/imageUpload.js";
 
 export const createPostController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -20,15 +17,11 @@ export const createPostController = async (req: Request, res: Response) => {
       });
     }
 
-    const uploaded = await imagekit.files.upload({
-      file: req.file.buffer.toString("base64"),
-      fileName: `${Date.now()}-${req.file.originalname}`,
-      folder: "/posts",
-    });
+    const imageUrl = await uploadImage(req.file);
 
     const post = await posts.create({
       caption: req.body.caption || "",
-      postImage: uploaded.url!,
+      postImage: imageUrl || "",
       user: user.id,
     });
 
