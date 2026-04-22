@@ -5,5 +5,8 @@ export const uploadImage = async (file: Express.Multer.File) => {
     file: file.buffer.toString("base64"),
     fileName: file.originalname,
   });
-  return response.url;
+  return {
+    url: response.url,
+    fileId: response.fileId,
+  };
 };

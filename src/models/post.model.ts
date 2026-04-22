@@ -8,11 +8,19 @@ const postSchema = new mongoose.Schema(
       maxlength: [1000, "Caption cannot exceed 1000 characters"],
       default: "",
     },
-    postImage: {
-      type: String,
-      trim: true,
-      required: [true, "imgUrl is required for creating an post"],
-    },
+
+    postImage: [
+      {
+        url: {
+          type: String,
+          required: [true, "imgUrl is required for creating an post"],
+        },
+        fileId: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
 
     likesCount: {
       type: Number,
