@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { posts } from "../models/post.model.js";
 import { uploadImage } from "../utils/imageUpload.js";
 import { imagekit } from "../config/imagekit.js";
+import { likeModel } from "../models/like.model.js";
 
 export const createPostController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -156,7 +157,7 @@ export const likePostController = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
 
-    const { postId } = req.params;
+    const { postId } = req.params as { postId: string };
 
     const existingPost = await posts.findById(postId);
     if (!existingPost) {
@@ -164,6 +165,11 @@ export const likePostController = async (req: Request, res: Response) => {
         message: "Post not found",
       });
     }
+
+    const existingLike = await likeModel.findOne({
+      postId,
+      userId,
+    });
   } catch (error) {
     return res.status(500).json({
       message: "Server error",
