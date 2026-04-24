@@ -154,5 +154,19 @@ export const getSinglePostController = async (req: Request, res: Response) => {
 
 export const likePostController = async (req: Request, res: Response) => {
   try {
-  } catch (error) {}
+    const userId = req.user?.id;
+
+    const { postId } = req.params;
+
+    const existingPost = await posts.findById(postId);
+    if (!existingPost) {
+      return res.status(404).json({
+        message: "Post not found",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+    });
+  }
 };
