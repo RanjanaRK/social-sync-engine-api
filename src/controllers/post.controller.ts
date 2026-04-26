@@ -51,9 +51,7 @@ export const createPostController = async (req: Request, res: Response) => {
 
 export const getPostsController = async (req: Request, res: Response) => {
   try {
-    const allPosts = await posts
-      .find()
-      .populate("user", "username profileImage bio");
+    const allPosts = await posts.find();
 
     return res.status(200).json({
       success: true,
@@ -150,7 +148,7 @@ export const getSinglePostController = async (req: Request, res: Response) => {
   const { postId } = req.params;
 
   try {
-    const post = await posts.findById(postId);
+    const post = await posts.findById(postId).lean();
     if (!post) {
       return res.status(404).json({
         message: "Post not found.",
