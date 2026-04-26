@@ -3,6 +3,7 @@ import { posts } from "../models/post.model.js";
 import { uploadImage } from "../utils/imageUpload.js";
 import { imagekit } from "../config/imagekit.js";
 import { likeModel } from "../models/like.model.js";
+import { commentModel } from "../models/comment.model.js";
 
 export const createPostController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -205,6 +206,39 @@ export const likePostController = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       message: "Reaction added",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
+
+export const getCommentPost = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
+
+    const { postId } = req.params as { postId: string };
+
+    const existingPost = await posts.findById(postId);
+
+    if (!existingPost) {
+      return res.status(404).json({
+        message: "Post not found",
+      });
+    }
+
+    const comments = await commentModel.find({ posts: postId });
+
+    return res.status(200).json({
+      message: "Comments fetched",
+      comments,
     });
   } catch (error) {
     return res.status(500).json({
