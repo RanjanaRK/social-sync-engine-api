@@ -214,7 +214,7 @@ export const likePostController = async (req: Request, res: Response) => {
   }
 };
 
-export const getCommentPost = async (req: Request, res: Response) => {
+export const getCommentPostController = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
 
