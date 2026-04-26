@@ -2,7 +2,12 @@ import mongoose from "mongoose";
 
 const commentSchema = new mongoose.Schema(
   {
-    posts: {
+    comment: {
+      type: String,
+      required: true,
+    },
+
+    post: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "posts",
       required: true,
@@ -19,6 +24,6 @@ const commentSchema = new mongoose.Schema(
   },
 );
 
-commentSchema.index({ posts: 1, user: 1 }, { unique: true });
+commentSchema.index({ posts: 1 }, { unique: true });
 
 export const commentModel = mongoose.model("comments", commentSchema);

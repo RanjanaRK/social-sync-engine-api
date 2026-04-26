@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-enum Emojis {
+export enum Emojis {
   LIKE = "like",
   LOVE = "love",
   HAHA = "haha",
@@ -14,6 +14,7 @@ const likeSchema = new mongoose.Schema(
     emoji: {
       type: String,
       enum: Object.values(Emojis),
+      default: "like",
     },
     post: {
       type: mongoose.Schema.Types.ObjectId,
