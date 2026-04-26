@@ -157,7 +157,14 @@ export const likePostController = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
 
+    if (!userId) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
     const { postId } = req.params as { postId: string };
+
+    const { emoji } = req.body as { emoji: string };
 
     const existingPost = await posts.findById(postId);
     if (!existingPost) {
@@ -169,6 +176,35 @@ export const likePostController = async (req: Request, res: Response) => {
     const existingLike = await likeModel.findOne({
       postId,
       userId,
+    });
+
+    if (existingLike) {
+      await likeModel.deleteOne({ _id: existingLike._id });
+
+      await posts.findByIdAndUpdate(postId, {
+        $inc: {
+          likesCount: -1,
+        },
+      });
+
+      return res.status(200).json({
+        message: "Reaction removed",
+      });
+    }
+    const newLike = await likeModel.create({
+      emoji,
+      post: postId,
+      user: userId,
+    });
+
+    const updatedPost = await posts.findByIdAndUpdate(postId, {
+      $inc: {
+        likesCount: 1,
+      },
+    });
+
+    return res.status(200).json({
+      message: "Reaction added",
     });
   } catch (error) {
     return res.status(500).json({
