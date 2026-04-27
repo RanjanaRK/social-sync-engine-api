@@ -8,6 +8,7 @@ import { authRouter } from "./routes/auth.routes.js";
 import { db } from "./config/db.js";
 import app from "./server.js";
 import postRouter from "./routes/post.routes.js";
+import userRouter from "./routes/user.routes.js";
 
 db();
 app.set("trust proxy", true);
@@ -25,6 +26,7 @@ app.use(helmet());
 
 app.use("/api/auth", authRouter);
 app.use("/api/post", postRouter);
+app.use("/api/user", userRouter);
 
 app.listen(5000, () => {
   console.log("server is running okay");
