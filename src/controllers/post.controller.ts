@@ -198,7 +198,6 @@ export const likePostController = async (req: Request, res: Response) => {
         await likeModel.deleteOne({ _id: existingLike._id });
 
         await posts.findByIdAndUpdate(
-          postId,
           { _id: postId, likesCount: { $gt: 0 } },
           { $inc: { likesCount: -1 } },
         );
@@ -209,8 +208,11 @@ export const likePostController = async (req: Request, res: Response) => {
         });
       }
 
-      existingLike.emoji = emoji;
-      await existingLike.save();
+      await likeModel.findByIdAndUpdate(
+        existingLike._id,
+        { emoji },
+        { new: true },
+      );
       return res.status(200).json({
         success: true,
         message: "Reaction updated",
