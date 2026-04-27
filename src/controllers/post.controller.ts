@@ -51,7 +51,7 @@ export const createPostController = async (req: Request, res: Response) => {
 
 export const getPostsController = async (req: Request, res: Response) => {
   try {
-    const allPosts = await posts.find();
+    const allPosts = await posts.find().lean();
 
     return res.status(200).json({
       success: true,
