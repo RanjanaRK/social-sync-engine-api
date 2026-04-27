@@ -383,3 +383,58 @@ export const deleteCommentController = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const updateCommentController = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const { commentId } = req.params as { commentId: string };
+    const { comment } = req.body as { comment: string };
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    if (!commentId) {
+      return res.status(400).json({
+        success: false,
+        message: "Comment id is required",
+      });
+    }
+
+    const existingComment = await commentModel.findById(commentId);
+
+    if (!existingComment) {
+      return res.status(404).json({
+        success: false,
+        message: "Comment not found",
+      });
+    }
+
+    if (existingComment.user.toString() !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden",
+      });
+    }
+
+    const updatedComment = await commentModel.findByIdAndUpdate(
+      commentId,
+      { comment },
+      { new: true },
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Comment updated",
+      data: updatedComment,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error ",
+    });
+  }
+};
