@@ -93,11 +93,9 @@ export const deletePostController = async (req: Request, res: Response) => {
       await imagekit.files.delete(image.fileId);
     }
 
-    await Promise.all([
-      posts.findByIdAndDelete(postId),
-      likeModel.deleteMany({ post: postId }),
-      commentModel.deleteMany({ post: postId }),
-    ]);
+    await posts.findByIdAndDelete(postId);
+    await commentModel.deleteMany({ post: postId });
+    await likeModel.deleteMany({ post: postId });
 
     return res.status(200).json({
       success: true,
