@@ -1,5 +1,8 @@
 import { Request, Response } from "express";
 import { users } from "../models/user.model.js";
+import { posts } from "../models/post.model.js";
+import { commentModel } from "../models/comment.model.js";
+import { likeModel } from "../models/like.model.js";
 
 export const getAllUsersController = async (req: Request, res: Response) => {
   try {
@@ -66,6 +69,45 @@ export const updateUserController = async (req: Request, res: Response) => {
       success: true,
       message: "User updated successfully",
       data: updatedUser,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+export const deleteUserAccountController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
+
+    const deletedUser = await users.findByIdAndDelete(userId);
+    await posts.deleteMany({ user: userId });
+
+    await likeModel.deleteMany({ user: userId });
+
+    await commentModel.deleteMany({ user: userId });
+
+    if (!deletedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
     });
   } catch (error) {
     return res.status(500).json({
