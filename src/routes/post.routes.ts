@@ -28,12 +28,20 @@ postRouter.delete("/delete/:id", identifyUser, deletePostController);
 
 postRouter.post("/like/:postId", identifyUser, likePostController);
 
-postRouter.get("/posts/:postId/comments", getCommentPostController);
+postRouter.get(
+  "/posts/:postId/comments",
+  identifyUser,
+  getCommentPostController,
+);
 
-postRouter.post("/posts/:postId/comments", createCommentController);
+postRouter.post(
+  "/posts/:postId/comments",
+  identifyUser,
+  createCommentController,
+);
 
-postRouter.delete("/comment/:postId", deleteCommentController);
+postRouter.delete("/comment/:postId", identifyUser, deleteCommentController);
 
-postRouter.patch("/comment/:postId", updateCommentController);
+postRouter.patch("/comment/:postId", identifyUser, updateCommentController);
 
 export default postRouter;
