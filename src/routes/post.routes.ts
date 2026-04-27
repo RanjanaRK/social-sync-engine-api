@@ -4,6 +4,7 @@ import {
   createPostController,
   deleteCommentController,
   deletePostController,
+  getAlluserPostsController,
   getCommentPostController,
   getPostsController,
   getSinglePostController,
@@ -21,6 +22,8 @@ postRouter.post("/", upload.single("file"), identifyUser, createPostController);
 postRouter.get("/get", getPostsController);
 
 postRouter.get("/get/:id", getSinglePostController);
+
+postRouter.get("/all", identifyUser, getAlluserPostsController);
 
 postRouter.patch("/update/:id", identifyUser, updatePostController);
 
