@@ -111,6 +111,42 @@ export const deletePostController = async (req: Request, res: Response) => {
   }
 };
 
+export const getAlluserPostsController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const userPosts = await posts
+      .find({ user: userId })
+      .sort({ createdAt: -1 })
+      .lean();
+    const totalPosts = await posts.countDocuments({ user: userId });
+
+    return res.status(200).json({
+      success: true,
+      message: "Posts fetched",
+      data: userPosts,
+      meta: {
+        totalPosts,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
 export const updatePostController = async (req: Request, res: Response) => {
   const { postId } = req.params;
   const { caption } = req.body;
