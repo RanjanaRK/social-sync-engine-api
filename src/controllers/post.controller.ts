@@ -74,6 +74,7 @@ export const getPostsController = async (req: Request, res: Response) => {
 export const deletePostController = async (req: Request, res: Response) => {
   const user = req.user;
   const { postId } = req.params;
+
   if (!postId) {
     return res.status(400).json({
       success: false,
@@ -274,6 +275,7 @@ export const likePostController = async (req: Request, res: Response) => {
     return res.status(201).json({
       success: true,
       message: "Reaction added",
+      isliked: true,
     });
   } catch (error) {
     return res.status(500).json({

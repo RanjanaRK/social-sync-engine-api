@@ -3,10 +3,102 @@ import { users } from "../models/user.model.js";
 import { posts } from "../models/post.model.js";
 import { commentModel } from "../models/comment.model.js";
 import { likeModel } from "../models/like.model.js";
+import { uploadImage } from "../utils/imageUpload.js";
+
+export const getCurrentUserProfileController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const user = await users.findById(userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const userPosts = await posts
+      .find({ user: userId })
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile fetched",
+      data: {
+        user,
+        posts: userPosts,
+        postsCount: userPosts.length,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+export const updateProfileImageController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Image is required",
+      });
+    }
+
+    // 1. upload to cloud
+    const uploadedImage = await uploadImage(req.file);
+
+    // 2. update user in DB
+    const updatedUser = await users.findByIdAndUpdate(
+      userId,
+      {
+        profileImage: uploadedImage.url,
+      },
+      { new: true },
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile image updated",
+      data: updatedUser,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
 
 export const getAllUsersController = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
+    const { username } = req.query;
 
     if (!userId) {
       return res.status(401).json({
@@ -14,7 +106,9 @@ export const getAllUsersController = async (req: Request, res: Response) => {
       });
     }
 
-    const allUsers = await users.find().lean();
+    const allUsers = await users
+      .find({ username: RegExp(username as string, "i") })
+      .lean();
 
     return res.status(200).json({
       success: true,
@@ -30,7 +124,7 @@ export const updateUserController = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
 
-    const { username, bio, profileImage } = req.body;
+    const { username, bio } = req.body;
 
     if (!userId) {
       return res.status(401).json({
@@ -50,11 +144,9 @@ export const updateUserController = async (req: Request, res: Response) => {
       {
         username,
         bio,
-        profileImage,
       },
       {
         new: true,
-        runValidators: true,
       },
     );
 
@@ -119,10 +211,10 @@ export const deleteUserAccountController = async (
 
 export const getPublicUserController = async (req: Request, res: Response) => {
   try {
-    const { username } = req.params;
+    const { username } = req.params as { username: string };
 
     const user = await users
-      .findOne({ _id: username })
+      .findOne({ username: username })
       .select("-password -email ");
 
     if (!user) {
@@ -134,16 +226,19 @@ export const getPublicUserController = async (req: Request, res: Response) => {
 
     const userPosts = await posts
       .find({
-        user: username,
+        user: user._id,
         visibility: "public",
       })
+      .populate("user")
       .sort({ createdAt: -1 });
 
     return res.status(200).json({
       success: true,
+      message: "User fetched",
       data: {
         user,
         posts: userPosts,
+        postsCount: userPosts.length,
       },
     });
   } catch (error) {

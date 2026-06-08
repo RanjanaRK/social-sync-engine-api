@@ -25,8 +25,6 @@ export const identifyUser = async (
 
     req.user = decoded;
 
-    console.log(decoded);
-
     next();
   } catch (error) {
     return res.status(401).json({

@@ -32,7 +32,7 @@ postRouter.get("/all", identifyUser, getAlluserPostsController);
 
 postRouter.patch("/update/:id", identifyUser, updatePostController);
 
-postRouter.delete("/delete/:id", identifyUser, deletePostController);
+postRouter.delete("/delete/:postId", identifyUser, deletePostController);
 
 postRouter.post("/like/:postId", identifyUser, likePostController);
 
