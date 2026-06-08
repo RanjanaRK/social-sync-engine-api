@@ -12,9 +12,12 @@ import userRouter from "./routes/user.routes.js";
 db();
 
 app.set("trust proxy", true);
+
+const allowedOrigins = [process.env.CLIENT_URL, "http://localhost:5173"];
+
 app.use(
   cors({
-    origin: [`${process.env.CLIENT_URL}`, "http://localhost:5173"],
+    origin: [process.env.CLIENT_URL!, "http://localhost:5173"],
     methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
