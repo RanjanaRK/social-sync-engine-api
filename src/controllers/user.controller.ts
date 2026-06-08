@@ -116,3 +116,42 @@ export const deleteUserAccountController = async (
     });
   }
 };
+
+export const getPublicUserController = async (req: Request, res: Response) => {
+  try {
+    const { username } = req.params;
+
+    const user = await users
+      .findOne({ _id: username })
+      .select("-password -email ");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const userPosts = await posts
+      .find({
+        user: username,
+        visibility: "public",
+      })
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        user,
+        posts: userPosts,
+      },
+    });
+  } catch (error) {
+    // console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};

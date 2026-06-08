@@ -17,7 +17,12 @@ import { upload } from "../middlewares/multer.middleware.js";
 
 const postRouter = Router();
 
-postRouter.post("/", upload.single("file"), identifyUser, createPostController);
+postRouter.post(
+  "/create",
+  upload.array("images", 5),
+  identifyUser,
+  createPostController,
+);
 
 postRouter.get("/get", getPostsController);
 

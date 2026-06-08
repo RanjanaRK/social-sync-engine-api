@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
+import { imagekit } from "../config/imagekit.js";
+import { commentModel } from "../models/comment.model.js";
+import { Emojis, likeModel } from "../models/like.model.js";
 import { posts } from "../models/post.model.js";
 import { uploadImage } from "../utils/imageUpload.js";
-import { imagekit } from "../config/imagekit.js";
-import { Emojis, likeModel } from "../models/like.model.js";
-import { commentModel } from "../models/comment.model.js";
 
 export const createPostController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -13,24 +13,29 @@ export const createPostController = async (req: Request, res: Response) => {
   }
 
   try {
-    if (!req.file) {
+    const files = req.files as Express.Multer.File[];
+
+    if (!files?.length) {
       return res.status(400).json({
         success: false,
-        message: "Image required",
+        message: "At least one image is required",
       });
     }
 
-    const uploadedImage = await uploadImage(req.file);
+    const uploadedImages = await Promise.all(
+      files.map(async (file) => {
+        const uploaded = await uploadImage(file);
+
+        return {
+          url: uploaded.url,
+          fileId: uploaded.fileId,
+        };
+      }),
+    );
 
     const post = await posts.create({
       caption: req.body.caption || "",
-      postImage: [
-        {
-          url: uploadedImage.url,
-          fileId: uploadedImage.fileId,
-        },
-      ],
-
+      postImage: uploadedImages,
       user: user.id,
     });
 
@@ -51,7 +56,7 @@ export const createPostController = async (req: Request, res: Response) => {
 
 export const getPostsController = async (req: Request, res: Response) => {
   try {
-    const allPosts = await posts.find().lean();
+    const allPosts = await posts.find().populate("user").lean();
 
     return res.status(200).json({
       success: true,
