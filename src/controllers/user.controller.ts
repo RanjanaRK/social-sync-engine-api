@@ -108,6 +108,8 @@ export const getAllUsersController = async (req: Request, res: Response) => {
 
     const allUsers = await users
       .find({ username: RegExp(username as string, "i") })
+      .select("-email -password")
+      .limit(10)
       .lean();
 
     return res.status(200).json({
