@@ -375,7 +375,10 @@ export const createCommentController = async (req: Request, res: Response) => {
 export const deleteCommentController = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
-    const { commentId } = req.params as { commentId: string };
+    const { commentId, postId } = req.params as {
+      commentId: string;
+      postId: string;
+    };
 
     if (!userId) {
       return res.status(401).json({

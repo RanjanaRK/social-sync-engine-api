@@ -48,7 +48,11 @@ postRouter.post(
   createCommentController,
 );
 
-postRouter.delete("/comment/:postId", identifyUser, deleteCommentController);
+postRouter.delete(
+  ":postId/comment/:commentId",
+  identifyUser,
+  deleteCommentController,
+);
 
 postRouter.patch("/comment/:postId", identifyUser, updateCommentController);
 
