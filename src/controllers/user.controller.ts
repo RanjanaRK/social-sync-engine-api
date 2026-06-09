@@ -106,6 +106,14 @@ export const getAllUsersController = async (req: Request, res: Response) => {
       });
     }
 
+    if (!username) {
+      return res.status(200).json({
+        success: true,
+        message: "No search query",
+        data: [],
+      });
+    }
+
     const allUsers = await users
       .find({ username: RegExp(username as string, "i") })
       .select("-email -password")
