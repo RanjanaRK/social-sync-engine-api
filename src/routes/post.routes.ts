@@ -24,9 +24,9 @@ postRouter.post(
   createPostController,
 );
 
-postRouter.get("/get", identifyUser, getPostsController);
+postRouter.get("/get", getPostsController);
 
-postRouter.get("/get/:postId", identifyUser, getSinglePostController);
+postRouter.get("/get/:postId", getSinglePostController);
 
 postRouter.get("/all", identifyUser, getAlluserPostsController);
 
