@@ -174,9 +174,7 @@ export const logoutController = async (req: Request, res: Response) => {
   }
 };
 
-import { Request, Response } from "express";
-import { users } from "../models/user.model.js";
-
+// GET ME
 export const meController = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
