@@ -13,7 +13,7 @@ const userRouter = Router();
 
 userRouter.get("/all", identifyUser, getAllUsersController);
 
-userRouter.get("/me", identifyUser, getCurrentUserProfileController);
+userRouter.get("/profile", identifyUser, getCurrentUserProfileController);
 
 userRouter.get("/:username", identifyUser, getPublicUserController);
 
