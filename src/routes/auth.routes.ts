@@ -6,7 +6,6 @@ import {
   registerController,
 } from "../controllers/auth.controller.js";
 import { identifyUser } from "../middlewares/auth.middleware.js";
-import { getCurrentUserProfileController } from "../controllers/user.controller.js";
 
 export const authRouter = Router();
 
