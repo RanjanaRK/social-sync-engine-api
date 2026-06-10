@@ -49,7 +49,7 @@ postRouter.post(
 );
 
 postRouter.delete(
-  ":postId/comment/:commentId",
+  "/:postId/comments/:commentId",
   identifyUser,
   deleteCommentController,
 );
