@@ -24,6 +24,4 @@ const commentSchema = new mongoose.Schema(
   },
 );
 
-commentSchema.index({ posts: 1 }, { unique: true });
-
 export const commentModel = mongoose.model("comments", commentSchema);
