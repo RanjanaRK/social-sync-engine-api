@@ -4,6 +4,7 @@ import { commentModel } from "../models/comment.model.js";
 import { Emojis, likeModel } from "../models/like.model.js";
 import { posts } from "../models/post.model.js";
 import { uploadImage } from "../utils/imageUpload.js";
+import mongoose from "mongoose";
 
 export const createPostController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -337,10 +338,18 @@ export const createCommentController = async (req: Request, res: Response) => {
         message: "Unauthorized",
       });
     }
-    if (!postId) {
+
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
       return res.status(400).json({
         success: false,
-        message: "Post id is required",
+        message: "Invalid post id",
+      });
+    }
+
+    if (!comment?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Comment is required",
       });
     }
 
@@ -354,7 +363,7 @@ export const createCommentController = async (req: Request, res: Response) => {
     }
 
     const newComment = await commentModel.create({
-      comment,
+      comment: comment.trim(),
       post: postId,
       user: userId,
     });
@@ -369,7 +378,7 @@ export const createCommentController = async (req: Request, res: Response) => {
       data: newComment,
     });
   } catch (error) {
-    console.log(error);
+    console.error("Create Comment Error:", error);
 
     return res.status(500).json({
       success: false,
