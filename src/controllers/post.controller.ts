@@ -369,6 +369,8 @@ export const createCommentController = async (req: Request, res: Response) => {
       data: newComment,
     });
   } catch (error) {
+    console.log(error);
+
     return res.status(500).json({
       success: false,
       message: "Server error",
