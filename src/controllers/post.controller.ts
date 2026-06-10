@@ -306,7 +306,11 @@ export const getCommentPostController = async (req: Request, res: Response) => {
       });
     }
 
-    const comments = await commentModel.find({ post: postId });
+    const comments = await commentModel
+      .find({ post: postId })
+      .populate("user")
+      .select("-password -email")
+      .lean();
 
     return res.status(200).json({
       success: true,
