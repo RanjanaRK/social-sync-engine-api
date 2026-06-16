@@ -364,8 +364,8 @@ export const createCommentController = async (req: Request, res: Response) => {
 
     const newComment = await commentModel.create({
       comment: comment.trim(),
-      post: postId,
-      user: userId,
+      post: new mongoose.Types.ObjectId(postId),
+      user: new mongoose.Types.ObjectId(userId),
     });
 
     await posts.findByIdAndUpdate(postId, {
