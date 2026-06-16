@@ -13,8 +13,6 @@ db();
 
 app.set("trust proxy", true);
 
-const allowedOrigins = [process.env.CLIENT_URL, "http://localhost:5173"];
-
 app.use(
   cors({
     origin: [process.env.CLIENT_URL!, "http://localhost:5173"],
