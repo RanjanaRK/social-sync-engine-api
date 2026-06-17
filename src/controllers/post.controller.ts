@@ -96,7 +96,7 @@ export const deletePostController = async (req: Request, res: Response) => {
     }
 
     if (userPost.user._id.toString() !== user?.id) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
+      return res.status(403).json({ success: false, message: "forbidden" });
     }
     const image = userPost.postImage?.[0];
 
