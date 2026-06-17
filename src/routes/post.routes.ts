@@ -19,8 +19,8 @@ const postRouter = Router();
 
 postRouter.post(
   "/create",
-  upload.array("images", 5),
   identifyUser,
+  upload.array("images", 5),
   createPostController,
 );
 
