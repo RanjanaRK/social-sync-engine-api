@@ -60,7 +60,7 @@ export const getPostsController = async (req: Request, res: Response) => {
     const allPosts = await posts
       .find()
       .populate("user")
-      .sort({ createAt: 1 })
+      .sort({ createAt: -1 })
       .lean();
 
     return res.status(200).json({
