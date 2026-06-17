@@ -134,7 +134,7 @@ export const getAlluserPostsController = async (
 
     const userPosts = await posts
       .find({ user: userId })
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: 1 })
       .lean();
     const totalPosts = await posts.countDocuments({ user: userId });
 
