@@ -1,40 +1,24 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema(
+const followSchema = new mongoose.Schema(
   {
-    username: {
-      type: String,
-      unique: [true, "user name already exists"],
-      required: [true, "User name is required"],
-    },
-    email: {
-      type: String,
-      unique: [true, "email already exists"],
-      required: [true, "email is required"],
-      match: [/^\S+@\S+\.\S+$/, "Invalid email"],
-      lowercase: true,
-    },
-    password: {
-      type: String,
-      required: [true, "Password is required"],
-      select: false,
+    follower: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "users",
+      required: true,
     },
 
-    bio: {
-      type: String,
-      maxlength: 200,
-    },
-    profileImage: {
-      type: String,
-      default: "/default.png",
-    },
-    role: {
-      type: String,
-      enum: ["user", "admin"],
-      default: "user",
+    followee: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "users",
+      required: true,
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  },
 );
 
-export const users = mongoose.model("users", userSchema);
+followSchema.index({ follower: 1, followee: 1 }, { unique: true });
+
+export const followModel = mongoose.model("follows", followSchema);
