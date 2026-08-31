@@ -3,18 +3,15 @@ import mongoose from "mongoose";
 const followSchema = new mongoose.Schema(
   {
     follower: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "users",
+      required: true,
     },
+
     followee: {
-      type: String,
-    },
-    status: {
-      type: String,
-      default: "pending",
-      enum: {
-        values: ["pending", "accepted", "rejected"],
-        message: "status can only be pending, accepted or rejected",
-      },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "users",
+      required: true,
     },
   },
   {
@@ -22,6 +19,9 @@ const followSchema = new mongoose.Schema(
   },
 );
 
-followSchema.index({ follower: 1, followee: 1 }, { unique: true });
+followSchema.index(
+  { follower: 1, followee: 1 },
+  { unique: true },
+);
 
 export const followModel = mongoose.model("follows", followSchema);
