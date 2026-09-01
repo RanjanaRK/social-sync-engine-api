@@ -102,6 +102,46 @@ export const unfollowUserController = async (req: Request, res: Response) => {
   }
 };
 
+export const getFollowStatusController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { username } = req.params as { username: string };
+    const loggedInUser = req.user as JwtUser;
+
+    // Find profile user
+    const followee = await users.findOne({ username });
+
+    if (!followee) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Check if logged-in user follows this user
+    const existingFollow = await followModel.findOne({
+      follower: loggedInUser.id,
+      followee: followee._id.toString(),
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        isFollowing: !!existingFollow,
+      },
+    });
+  } catch (error) {
+    console.error("Follow status error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get follow status",
+    });
+  }
+};
+
 export const getFollowCountsController = async (
   req: Request,
   res: Response,
