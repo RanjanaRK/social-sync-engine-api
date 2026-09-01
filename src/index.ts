@@ -8,6 +8,7 @@ import { db } from "./config/db.js";
 import app from "./server.js";
 import postRouter from "./routes/post.routes.js";
 import userRouter from "./routes/user.routes.js";
+import followRouter from "./routes/follow.routes.js";
 
 db();
 
@@ -28,6 +29,7 @@ app.use(helmet());
 app.use("/api/auth", authRouter);
 app.use("/api/post", postRouter);
 app.use("/api/user", userRouter);
+app.use("/api/follow", followRouter);
 
 const PORT = process.env.PORT || 5000;
 
