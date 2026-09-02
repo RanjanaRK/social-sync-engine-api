@@ -252,6 +252,7 @@ export const likePostController = async (req: Request, res: Response) => {
         return res.status(200).json({
           success: true,
           message: "Reaction removed",
+          isLiked: false,
         });
       }
 
@@ -263,6 +264,7 @@ export const likePostController = async (req: Request, res: Response) => {
       return res.status(200).json({
         success: true,
         message: "Reaction updated",
+        isLiked: true,
       });
     }
     await likeModel.create({
