@@ -275,6 +275,7 @@ export const removeFollowerController = async (req: Request, res: Response) => {
 
     const loggedInUser = req.user as JwtUser;
 
+    // Find the follower user
     const followerUser = await users.findOne({ username });
 
     if (!followerUser) {
@@ -284,12 +285,13 @@ export const removeFollowerController = async (req: Request, res: Response) => {
       });
     }
 
-    const removeFollower = await followModel.findByIdAndDelete({
+    // Delete the follow relationship
+    const removedFollower = await followModel.findOneAndDelete({
       follower: followerUser._id,
       followee: loggedInUser.id,
     });
 
-    if (!removeFollower) {
+    if (!removedFollower) {
       return res.status(400).json({
         success: false,
         message: "This user is not following you",
@@ -302,6 +304,7 @@ export const removeFollowerController = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Remove follower error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Failed to remove follower",
