@@ -301,6 +301,7 @@ export const removeFollowerController = async (req: Request, res: Response) => {
       message: `Removed ${followerUser.username} from your followers`,
     });
   } catch (error) {
+    console.error("Remove follower error:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to remove follower",
