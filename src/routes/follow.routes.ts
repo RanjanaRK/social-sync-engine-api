@@ -2,6 +2,8 @@ import { Router } from "express";
 import {
   followUserController,
   getFollowCountsController,
+  getFollowersController,
+  getFollowingController,
   getFollowStatusController,
   unfollowUserController,
 } from "../controllers/follow.controller.js";
@@ -15,6 +17,10 @@ followRouter.delete("/:username", identifyUser, unfollowUserController);
 
 followRouter.get("/status/:username", identifyUser, getFollowStatusController);
 
-followRouter.get("/counts/:username", getFollowCountsController);
+followRouter.get("/counts/:username", identifyUser, getFollowCountsController);
+
+followRouter.get("/followers/:username", identifyUser, getFollowersController);
+
+followRouter.get("/following/:username", identifyUser, getFollowingController);
 
 export default followRouter;

@@ -186,3 +186,85 @@ export const getFollowCountsController = async (
     });
   }
 };
+
+export const getFollowersController = async (req: Request, res: Response) => {
+  try {
+    const { username } = req.params as { username: string };
+
+    const user = await users.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const follows = await followModel
+      .find({
+        followee: user._id.toString(),
+      })
+      .sort({ createdAt: -1 });
+
+    const followerIds = follows.map((follow) => follow.follower);
+
+    const followerUsers = await users
+      .find({
+        _id: { $in: followerIds },
+      })
+      .select("username profileImage bio");
+
+    return res.status(200).json({
+      success: true,
+      data: followerUsers,
+    });
+  } catch (error) {
+    console.error("Get followers error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get followers",
+    });
+  }
+};
+
+export const getFollowingController = async (req: Request, res: Response) => {
+  try {
+    const { username } = req.params as { username: string };
+
+    const user = await users.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const follows = await followModel
+      .find({
+        follower: user._id.toString(),
+      })
+      .sort({ createdAt: -1 });
+
+    const followingIds = follows.map((follow) => follow.followee);
+
+    const followingUsers = await users
+      .find({
+        _id: { $in: followingIds },
+      })
+      .select("username profileImage bio");
+
+    return res.status(200).json({
+      success: true,
+      data: followingUsers,
+    });
+  } catch (error) {
+    console.error("Get following error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get following",
+    });
+  }
+};
