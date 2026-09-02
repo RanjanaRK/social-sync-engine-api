@@ -268,3 +268,42 @@ export const getFollowingController = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const removeFollowerController = async (req: Request, res: Response) => {
+  try {
+    const { username } = req.params as { username: string };
+
+    const loggedInUser = req.user as JwtUser;
+
+    const followerUser = await users.findOne({ username });
+
+    if (!followerUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const removeFollower = await followModel.findByIdAndDelete({
+      follower: followerUser._id.toString(),
+      followee: loggedInUser.id,
+    });
+
+    if (!removeFollower) {
+      return res.status(400).json({
+        success: false,
+        message: "This user is not following you",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Removed ${followerUser.username} from your followers`,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to remove follower",
+    });
+  }
+};

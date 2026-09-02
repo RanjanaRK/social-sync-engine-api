@@ -5,6 +5,7 @@ import {
   getFollowersController,
   getFollowingController,
   getFollowStatusController,
+  removeFollowerController,
   unfollowUserController,
 } from "../controllers/follow.controller.js";
 import { identifyUser } from "../middlewares/auth.middleware.js";
@@ -14,6 +15,12 @@ const followRouter = Router();
 followRouter.post("/:username", identifyUser, followUserController);
 
 followRouter.delete("/:username", identifyUser, unfollowUserController);
+
+followRouter.delete(
+  "/followers/:username",
+  identifyUser,
+  removeFollowerController,
+);
 
 followRouter.get("/status/:username", identifyUser, getFollowStatusController);
 
