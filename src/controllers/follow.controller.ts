@@ -285,7 +285,7 @@ export const removeFollowerController = async (req: Request, res: Response) => {
     }
 
     const removeFollower = await followModel.findByIdAndDelete({
-      follower: followerUser._id.toString(),
+      follower: followerUser._id,
       followee: loggedInUser.id,
     });
 
