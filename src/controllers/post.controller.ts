@@ -640,18 +640,11 @@ export const createSavePostController = async (req: Request, res: Response) => {
 
 export const getSavedPostsController = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized",
-      });
-    }
+    const user = req.user as JwtUser;
 
     const savedPosts = await savedPostModel
       .find({
-        user: userId,
+        user: user.id,
       })
       .populate({
         path: "post",

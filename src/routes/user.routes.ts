@@ -5,6 +5,7 @@ import {
   getCurrentUserProfileController,
   getPublicUserController,
   updateProfileImageController,
+  updateUserController,
 } from "../controllers/user.controller.js";
 import { identifyUser } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -25,5 +26,7 @@ userRouter.patch(
   upload.single("image"),
   updateProfileImageController,
 );
+
+userRouter.patch("/profile/update/info", identifyUser, updateUserController);
 
 export default userRouter;
