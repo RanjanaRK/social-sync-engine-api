@@ -2,11 +2,13 @@ import { Router } from "express";
 import {
   createCommentController,
   createPostController,
+  createSavePostController,
   deleteCommentController,
   deletePostController,
   getAlluserPostsController,
   getCommentPostController,
   getPostsController,
+  getSavedPostsController,
   getSinglePostController,
   likePostController,
   updateCommentController,
@@ -55,5 +57,9 @@ postRouter.delete(
 );
 
 postRouter.patch("/comment/:postId", identifyUser, updateCommentController);
+
+postRouter.post("/saved/:postId", identifyUser, createSavePostController);
+
+postRouter.get("/saved", identifyUser, getSavedPostsController);
 
 export default postRouter;

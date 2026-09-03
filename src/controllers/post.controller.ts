@@ -6,6 +6,7 @@ import { posts } from "../models/post.model.js";
 import { uploadImage } from "../utils/imageUpload.js";
 import mongoose from "mongoose";
 import { JwtUser } from "./follow.controller.js";
+import { savedPostModel } from "../models/savePost.model.js";
 
 export const createPostController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -67,38 +68,58 @@ export const getPostsController = async (req: Request, res: Response) => {
       });
     }
 
+    // Get all posts
     const allPosts = await posts
       .find()
       .populate("user")
       .sort({ createdAt: -1 })
       .lean();
 
+    // Get current user's reactions
     const userLikes = await likeModel
       .find({
         user: userId,
       })
       .lean();
 
+    // Get current user's saved posts
+    const savedPosts = await savedPostModel
+      .find({
+        user: userId,
+      })
+      .lean();
+
+    // Map reactions by post ID
     const likeMap = new Map(
       userLikes.map((like) => [like.post.toString(), like]),
     );
 
-    const postsWithReaction = allPosts.map((post) => {
+    // Store saved post IDs
+    const savedPostIds = new Set(
+      savedPosts.map((saved) => saved.post.toString()),
+    );
+
+    // Add user-specific status
+    const postsWithStatus = allPosts.map((post) => {
       const reaction = likeMap.get(post._id.toString());
 
       return {
         ...post,
 
+        // Reaction
         isLiked: !!reaction,
 
         userReaction: reaction?.emoji ?? null,
+
+        // Save
+        isSaved: savedPostIds.has(post._id.toString()),
       };
     });
 
     return res.status(200).json({
       success: true,
       message: "Posts fetched",
-      data: postsWithReaction,
+      data: postsWithStatus,
     });
   } catch (error) {
     console.error("Get posts error:", error);
@@ -109,6 +130,7 @@ export const getPostsController = async (req: Request, res: Response) => {
     });
   }
 };
+
 export const deletePostController = async (req: Request, res: Response) => {
   const user = req.user;
   const { postId } = req.params;
@@ -561,6 +583,106 @@ export const updateCommentController = async (req: Request, res: Response) => {
     return res.status(500).json({
       success: false,
       message: "Server error ",
+    });
+  }
+};
+
+export const createSavePostController = async (req: Request, res: Response) => {
+  try {
+    const user = req.user as JwtUser;
+    const { postId } = req.params as { postId: string };
+
+    const post = await posts.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found",
+      });
+    }
+
+    const existingSavedPost = await savedPostModel.findOne({
+      user: user.id,
+      post: postId,
+    });
+
+    if (existingSavedPost) {
+      await savedPostModel.deleteOne({
+        _id: existingSavedPost._id,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Post removed from saved posts",
+        isSaved: false,
+      });
+    }
+
+    await savedPostModel.create({
+      user: user.id,
+      post: postId,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Post saved",
+      isSaved: true,
+    });
+  } catch (error) {
+    console.error(" save post error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+export const getSavedPostsController = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const savedPosts = await savedPostModel
+      .find({
+        user: userId,
+      })
+      .populate({
+        path: "post",
+        populate: {
+          path: "user",
+        },
+      })
+      .sort({
+        createdAt: -1,
+      })
+      .lean();
+
+    const data = savedPosts
+      .filter((saved) => saved.post)
+      .map((saved) => ({
+        ...saved.post,
+
+        isSaved: true,
+      }));
+
+    return res.status(200).json({
+      success: true,
+      message: "Saved posts fetched",
+      data,
+    });
+  } catch (error) {
+    console.error("Get saved posts error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
     });
   }
 };
