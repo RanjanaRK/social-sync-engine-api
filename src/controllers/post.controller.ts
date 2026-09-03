@@ -5,6 +5,7 @@ import { Emojis, likeModel } from "../models/like.model.js";
 import { posts } from "../models/post.model.js";
 import { uploadImage } from "../utils/imageUpload.js";
 import mongoose from "mongoose";
+import { JwtUser } from "./follow.controller.js";
 
 export const createPostController = async (req: Request, res: Response) => {
   const user = req.user;
@@ -57,25 +58,57 @@ export const createPostController = async (req: Request, res: Response) => {
 
 export const getPostsController = async (req: Request, res: Response) => {
   try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
     const allPosts = await posts
       .find()
       .populate("user")
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: -1 })
       .lean();
+
+    const userLikes = await likeModel
+      .find({
+        user: userId,
+      })
+      .lean();
+
+    const likeMap = new Map(
+      userLikes.map((like) => [like.post.toString(), like]),
+    );
+
+    const postsWithReaction = allPosts.map((post) => {
+      const reaction = likeMap.get(post._id.toString());
+
+      return {
+        ...post,
+
+        isLiked: !!reaction,
+
+        userReaction: reaction?.emoji ?? null,
+      };
+    });
 
     return res.status(200).json({
       success: true,
       message: "Posts fetched",
-      data: allPosts,
+      data: postsWithReaction,
     });
   } catch (error) {
+    console.error("Get posts error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Server error",
     });
   }
 };
-
 export const deletePostController = async (req: Request, res: Response) => {
   const user = req.user;
   const { postId } = req.params;
@@ -223,11 +256,12 @@ export const likePostController = async (req: Request, res: Response) => {
         message: "Unauthorized",
       });
     }
-    const { postId } = req.params as { postId: string };
 
+    const { postId } = req.params as { postId: string };
     const { emoji } = req.body as { emoji: Emojis };
 
     const existingPost = await posts.findById(postId);
+
     if (!existingPost) {
       return res.status(404).json({
         success: false,
@@ -240,33 +274,53 @@ export const likePostController = async (req: Request, res: Response) => {
       user: userId,
     });
 
+    // Remove reaction
     if (existingLike) {
       if (existingLike.emoji === emoji) {
-        await likeModel.deleteOne({ _id: existingLike._id });
+        await likeModel.deleteOne({
+          _id: existingLike._id,
+        });
 
-        await posts.findByIdAndUpdate(
-          { _id: postId, likesCount: { $gt: 0 } },
-          { $inc: { likesCount: -1 } },
+        await posts.findOneAndUpdate(
+          {
+            _id: postId,
+            likesCount: { $gt: 0 },
+          },
+          {
+            $inc: {
+              likesCount: -1,
+            },
+          },
         );
 
         return res.status(200).json({
           success: true,
           message: "Reaction removed",
           isLiked: false,
+          userReaction: null,
         });
       }
 
+      // Change reaction
       await likeModel.findByIdAndUpdate(
         existingLike._id,
-        { emoji },
-        { new: true },
+        {
+          emoji,
+        },
+        {
+          new: true,
+        },
       );
+
       return res.status(200).json({
         success: true,
         message: "Reaction updated",
         isLiked: true,
+        userReaction: emoji,
       });
     }
+
+    // Create reaction
     await likeModel.create({
       emoji,
       post: postId,
@@ -282,9 +336,12 @@ export const likePostController = async (req: Request, res: Response) => {
     return res.status(201).json({
       success: true,
       message: "Reaction added",
-      isliked: true,
+      isLiked: true,
+      userReaction: emoji,
     });
   } catch (error) {
+    console.error("Like post error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Server error",

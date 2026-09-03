@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { users } from "../models/user.model.js";
 import { followModel } from "../models/follow.model.js";
 
-interface JwtUser {
+export interface JwtUser {
   id: string;
 }
 
