@@ -8,36 +8,62 @@ Backend API for a social networking platform that allows users to create posts, 
 
 - User Registration
 - User Login
+- User Logout
 - JWT Authentication
-- HTTP-Only Cookie Support
+- HTTP-Only Cookie Authentication
 - Protected Routes
+- Password Hashing with bcrypt
+- Authentication Middleware
+- Authorization for Protected Resources
 
 ### 👤 User Management
 
 - View User Profile
-- Update User Profile
+- Edit User Profile
+- Update Profile Picture
+- Upload Profile Picture
 - View Public Profiles
 - Search Users by Username
 
+### 👥 Follow System
+
+- Follow Users
+- Unfollow Users
+- View Followers
+- View Following
+- Check Follow Status
+- Manage User Follow Relationships
+
 ### 📝 Posts
 
-- Create Posts with Caption
-- Upload Images using ImageKit
-- Delete Posts
-- Fetch User Posts
+- Create Posts
+- Edit Posts
+- Add Captions
+- Upload Post Images
 - Fetch Feed Posts
+- Fetch User Posts
+- Delete Own Posts
+- Save / Unsave Posts
+- Fetch Saved Posts
 
-### ❤️ Engagement
+### ❤️ Social Engagement
 
 - Like / Unlike Posts
 - Add Comments
 - Fetch Comments
+- React to Posts
+- Emoji Support
+- View Post Engagement
+- View Comment Engagement
 
-### ☁️ Media Upload
+### ☁️ Media Management
 
 - Image Upload using ImageKit
-- Cloud-Based Storage
+- Profile Image Upload
+- Post Image Upload
+- Cloud-based Media Storage
 - Optimized Image Delivery
+- Secure Media Upload Handling
 
 ### 🚧 Upcoming Features
 
@@ -109,7 +135,7 @@ IMAGEKIT_URL_ENDPOINT=your_url_endpoint
 Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/social-sync-engine-api.git
+git clone https://github.com/ranjanaRk/social-sync-engine-api.git
 ```
 
 Navigate to the project directory:
